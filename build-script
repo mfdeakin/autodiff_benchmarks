@@ -1,0 +1,4 @@
+clang++ ../main.cpp -S -emit-llvm -o main.cpp.ll -std=c++20 -O3 -fstrict-aliasing
+opt main.cpp.ll -load=/usr/local/lib64/LLVMEnzyme-10.so -enzyme -o main.cpp.autodiff.ll -S
+opt main.cpp.autodiff.ll -O3 -o main.cpp.optimized.ll -S
+clang++ main.cpp.optimized.ll -o benchmark -O3 -march=native -lbenchmark -lpthread
