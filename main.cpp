@@ -7,7 +7,7 @@
 
 #include <benchmark/benchmark.h>
 
-#if 0
+#if HAVE_ENZYME
 extern double __enzyme_autodiff(void *, double);
 #define enzyme_autodiff __enzyme_autodiff
 #else
@@ -48,6 +48,17 @@ static void BM_Null(benchmark::State &state) {
 }
 BENCHMARK(BM_Null);
 
+static void BM_F(benchmark::State &state) {
+  auto x = rand_x();
+  size_t i = 0;
+  while (state.KeepRunning()) {
+    benchmark::DoNotOptimize(f(x[i]));
+    ++i;
+    i %= x.capacity();
+  }
+}
+BENCHMARK(BM_F);
+
 static void BM_ExplicitDiff(benchmark::State &state) {
   auto x = rand_x();
   size_t i = 0;
@@ -73,7 +84,7 @@ BENCHMARK(BM_EnzymeDiff);
 static void BM_SacadoDiff(benchmark::State &state) {
   auto x = rand_x();
   size_t i = 0;
-  using Real = Sacado::Fad::SFad<double, 2>;
+  using Real = Sacado::Fad::SFad<double, 1>;
   while (state.KeepRunning()) {
     Real x_ad = x[i];
     x_ad.diff(0, 1);
